@@ -1,0 +1,27 @@
+services:
+  spark-master:
+    build: ./spark
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+      - PYSPARK_PYTHON=python3.10
+    ports:
+      - "7077:7077"  # Spark master port for cluster connections
+      - "8080:8080"  # Spark master Web UI
+    volumes:
+      - spark_data:/opt/spark/work
+
+  spark-worker:
+    build: ./spark
+    container_name: spark-worker
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - PYSPARK_PYTHON=python3.10
+    volumes:
+      - spark_data:/opt/spark/work
+
+volumes:
+  spark_data:
